@@ -1,0 +1,163 @@
+<html>
+
+<head>
+	<title>ecmajist</title>
+	<style>
+	* {
+		box-sizing: border-box;
+	}
+	
+	body {
+		font-size: 12px;
+		font-family: monospace;
+	}
+	
+	.header {
+		font-size: 2.3rem;
+		text-align: center;
+		text-decoration: none;
+	}
+	
+	.header .url {
+		height: 100px;
+		text-decoration: none;
+		line-height: 100px;
+		color: silver;
+	}
+	
+	.alias {
+		display: block;
+		width: 100%;
+		height: calc(50px);
+		line-height: 2rem;
+		font-size: 1.5rem;
+		padding: 10px;
+	}
+	
+	.content {
+		width: 100%;
+		height: calc(100% - 150px);
+		font-size: 1.5rem;
+		line-height: 2rem;
+		border: none;
+		box-shadow: 0 0 0 1px silver inset;
+		padding: 10px;
+	}
+	</style>
+</head>
+
+<body>
+	<div class="header">
+		<input type="text" placeholder="e.g. my-library" class="alias" autofocus></input>
+		<div class="url">http://foo/gists/12452167-1212-212-212112</div>
+	</div>
+	<textarea placeholder="CTRL+S to save..." class="content"></textarea>
+	<script>
+	var app = {
+		root: {}
+	};
+
+	function module(name, cb) {
+		app['root']['name'] = cb(name => name ? app['root']['name'] : app['root']);
+	}
+
+	module('components/store/factory', function(require) {
+		const factory = {
+			create
+		};
+
+		function create(reducers) {
+			return reducers.reduce((p, c) => c(p), {});
+		}
+		return factory;
+	});
+
+	module('components/application/state/reducer', function(require) {
+		function reducer(store) {
+			return Object.assign({}, store, {
+				isDisabled: false,
+			});
+		}
+		return factory;
+	});
+
+	module('components/store/reducers', function(require) {
+		var application = require('components/application/state/reducer');
+		return [application];
+	});
+
+	module('components/boot/coordinator', function(require) {
+		const appRoot = require();
+		const storeFactory = require('store/factory');
+		const reducers = require('store/reducers');
+
+		const coordinator = {
+			boot
+		};
+
+		function boot() {
+			appRoot.store = storeFactory.create(reducers);
+
+		}
+		return coordinator;
+	});
+
+	var contentEl = document.querySelector('.content');
+	var aliasEl = document.querySelector('.alias');
+	window.addEventListener('keydown', onKeydown);
+	boot();
+
+	function boot(evt) {}
+
+	function onKeydown(evt) {
+		if (isDisabled) {
+			evt.preventDefault();
+			return;
+		}
+
+		if (!isCtrlS(evt)) {
+			return;
+		}
+
+		if (isAliasEmpty(evt)) {
+			aliasEl.focus();
+			evt.preventDefault();
+			return;
+		}
+
+		save().then(saved);
+		evt.preventDefault();
+	}
+
+	function isCtrlS(evt) {
+		return (evt.ctrlKey && evt.which == 83) || (evt.which == 19);
+	}
+
+	function isAliasEmpty(evt) {
+		return evt.target === contentEl &&
+			!aliasEl.value;
+	}
+
+	function save() {
+
+	}
+
+	function saving() {
+
+	}
+
+	function saved() {
+
+	}
+
+	function disable() {
+		isDisabled = true;
+	}
+
+	function enable() {
+		isDisabled = true;
+	}
+	</script>
+</body>
+
+</html>
